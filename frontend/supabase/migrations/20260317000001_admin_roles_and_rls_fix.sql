@@ -1,17 +1,22 @@
--- Migration: Add temp admin to admin_roles and fix RLS for admin delete
+-- Migration: Add temp admin to user_roles and fix RLS for admin delete
 -- Date: 2026-03-17
 -- Purpose: Properly configure admin access and delete permissions
 
 -- ============================================================================
--- PART 1: Insert temp admin user into admin_roles
+-- PART 1: Insert temp admin user into user_roles
 -- ============================================================================
 
 -- The temp admin user ID: aa18e6f6-2249-415a-ae95-9fc1e43acf23
 -- Email: temp.admin.1773708390929@nannyelite.ch
 
-INSERT INTO public.admin_roles (user_id, role)
-VALUES ('aa18e6f6-2249-415a-ae95-9fc1e43acf23', 'admin')
-ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM auth.users WHERE id = 'aa18e6f6-2249-415a-ae95-9fc1e43acf23') THEN
+    INSERT INTO public.user_roles (user_id, role)
+    VALUES ('aa18e6f6-2249-415a-ae95-9fc1e43acf23', 'admin')
+    ON CONFLICT (user_id, role) DO NOTHING;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- PART 2: Create is_admin() function
@@ -25,7 +30,7 @@ SET search_path = public
 AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.admin_roles 
+    SELECT 1 FROM public.user_roles 
     WHERE user_id = check_user_id 
     AND role IN ('admin', 'moderator')
   );
@@ -36,21 +41,21 @@ $$;
 GRANT EXECUTE ON FUNCTION public.is_admin TO authenticated;
 
 -- ============================================================================
--- PART 3: RLS Policies for admin_roles table (allow admins to read)
+-- PART 3: RLS Policies for user_roles table (allow admins to read)
 -- ============================================================================
 
--- Enable RLS on admin_roles if not already
-ALTER TABLE public.admin_roles ENABLE ROW LEVEL SECURITY;
+-- Enable RLS on user_roles if not already
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
 -- Allow users to check their own admin status
-DROP POLICY IF EXISTS "Users can read own admin role" ON public.admin_roles;
-CREATE POLICY "Users can read own admin role" ON public.admin_roles
+DROP POLICY IF EXISTS "Users can read own admin role" ON public.user_roles;
+CREATE POLICY "Users can read own admin role" ON public.user_roles
   FOR SELECT TO authenticated
   USING (user_id = auth.uid());
 
 -- Allow admins to read all admin roles
-DROP POLICY IF EXISTS "Admins can read all admin roles" ON public.admin_roles;
-CREATE POLICY "Admins can read all admin roles" ON public.admin_roles
+DROP POLICY IF EXISTS "Admins can read all admin roles" ON public.user_roles;
+CREATE POLICY "Admins can read all admin roles" ON public.user_roles
   FOR SELECT TO authenticated
   USING (public.is_admin());
 
@@ -112,11 +117,14 @@ CREATE POLICY "Admins can delete any nanny document" ON public.nanny_documents
   FOR DELETE TO authenticated
   USING (public.is_admin());
 
--- nanny_certificates
-DROP POLICY IF EXISTS "Admins can delete any nanny certificate" ON public.nanny_certificates;
-CREATE POLICY "Admins can delete any nanny certificate" ON public.nanny_certificates
-  FOR DELETE TO authenticated
-  USING (public.is_admin());
+-- user_certificates
+DO $$ 
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'user_certificates') THEN
+    EXECUTE 'DROP POLICY IF EXISTS "Admins can delete any user certificate" ON public.user_certificates';
+    EXECUTE 'CREATE POLICY "Admins can delete any user certificate" ON public.user_certificates FOR DELETE TO authenticated USING (public.is_admin())';
+  END IF;
+END $$;
 
 -- job_applications
 DROP POLICY IF EXISTS "Admins can delete any job application" ON public.job_applications;
@@ -143,6 +151,6 @@ CREATE POLICY "Admins can delete any user role" ON public.user_roles
 -- SELECT public.is_admin('aa18e6f6-2249-415a-ae95-9fc1e43acf23');
 -- Should return: true
 --
--- SELECT * FROM admin_roles WHERE user_id = 'aa18e6f6-2249-415a-ae95-9fc1e43acf23';
+-- SELECT * FROM user_roles WHERE user_id = 'aa18e6f6-2249-415a-ae95-9fc1e43acf23';
 -- Should return: 1 row with role = 'admin'
 -- ============================================================================

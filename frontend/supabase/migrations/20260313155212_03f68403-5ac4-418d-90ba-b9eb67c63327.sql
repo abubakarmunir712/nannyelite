@@ -142,8 +142,8 @@ CREATE POLICY "Nannies can delete own documents" ON public.nanny_documents
   FOR DELETE TO authenticated USING (auth.uid() = user_id);
 
 -- Storage buckets for nanny photos and documents
-INSERT INTO storage.buckets (id, name, public) VALUES ('nanny-photos', 'nanny-photos', true);
-INSERT INTO storage.buckets (id, name, public) VALUES ('nanny-documents', 'nanny-documents', false);
+INSERT INTO storage.buckets (id, name, public) VALUES ('nanny-photos', 'nanny-photos', true) ON CONFLICT (id) DO NOTHING;
+INSERT INTO storage.buckets (id, name, public) VALUES ('nanny-documents', 'nanny-documents', false) ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for nanny-photos
 CREATE POLICY "Anyone can view nanny photos" ON storage.objects

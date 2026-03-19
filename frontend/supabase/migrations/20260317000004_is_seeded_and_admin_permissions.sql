@@ -75,12 +75,12 @@ WHERE job_source IN ('platform', 'partner');
 -- ============================================================================
 
 -- Create a function to check if user is admin
-CREATE OR REPLACE FUNCTION public.is_admin(user_uuid uuid)
+CREATE OR REPLACE FUNCTION public.is_admin(check_user_id uuid DEFAULT auth.uid())
 RETURNS boolean AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.admin_roles 
-    WHERE user_id = user_uuid 
+    SELECT 1 FROM public.user_roles 
+    WHERE user_id = check_user_id 
     AND role IN ('admin', 'moderator')
   );
 END;
@@ -104,9 +104,9 @@ CREATE POLICY "Admins can delete family_profiles" ON public.family_profiles
   FOR DELETE TO authenticated
   USING (public.is_admin(auth.uid()));
 
--- Allow admins to read admin_roles (needed for role checking)
-DROP POLICY IF EXISTS "Admins can read admin_roles" ON public.admin_roles;
-CREATE POLICY "Admins can read admin_roles" ON public.admin_roles
+-- Allow admins to read user_roles (needed for role checking)
+DROP POLICY IF EXISTS "Admins can read user_roles" ON public.user_roles;
+CREATE POLICY "Admins can read user_roles" ON public.user_roles
   FOR SELECT TO authenticated
   USING (public.is_admin(auth.uid()) OR user_id = auth.uid());
 
@@ -139,7 +139,7 @@ CREATE POLICY "Admins can update family_profiles" ON public.family_profiles
 -- Admin can now:
 --   - Delete profiles, nanny_profiles, family_profiles
 --   - Update is_seeded field on any profile
---   - Read admin_roles table
+--   - Read user_roles table
 --
 -- To mark a user as seeded:
 --   UPDATE profiles SET is_seeded = true WHERE user_id = 'xxx';

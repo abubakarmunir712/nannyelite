@@ -21,30 +21,37 @@ CREATE INDEX IF NOT EXISTS idx_user_certificates_status ON public.user_certifica
 ALTER TABLE public.user_certificates ENABLE ROW LEVEL SECURITY;
 
 -- Users can view their own certificates
+DROP POLICY IF EXISTS "Users can view own certificates" ON public.user_certificates;
+DROP POLICY IF EXISTS "Nannies can view own certificates" ON public.user_certificates;
 CREATE POLICY "Users can view own certificates"
   ON public.user_certificates FOR SELECT
   USING (auth.uid() = user_id);
 
 -- Users can insert their own certificates
+DROP POLICY IF EXISTS "Users can insert own certificates" ON public.user_certificates;
+DROP POLICY IF EXISTS "Nannies can insert own certificates" ON public.user_certificates;
 CREATE POLICY "Users can insert own certificates"
   ON public.user_certificates FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 -- Admins can view all certificates
+DROP POLICY IF EXISTS "Admins can view all certificates" ON public.user_certificates;
 CREATE POLICY "Admins can view all certificates"
   ON public.user_certificates FOR SELECT
   USING (
-    EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+    EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
   );
 
 -- Admins can update certificates (approve/reject)
+DROP POLICY IF EXISTS "Admins can update certificates" ON public.user_certificates;
 CREATE POLICY "Admins can update certificates"
   ON public.user_certificates FOR UPDATE
   USING (
-    EXISTS (SELECT 1 FROM public.admin_roles WHERE user_id = auth.uid())
+    EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = auth.uid() AND role = 'admin')
   );
 
 -- Anyone can read approved certificates (for badge display)
+DROP POLICY IF EXISTS "Anyone can read approved certificates" ON public.user_certificates;
 CREATE POLICY "Anyone can read approved certificates"
   ON public.user_certificates FOR SELECT
   USING (status = 'approved');
