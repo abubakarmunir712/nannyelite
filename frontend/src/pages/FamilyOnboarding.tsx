@@ -29,6 +29,10 @@ const FamilyOnboarding = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!user) navigate("/login");
+  }, [user, navigate]);
+
   // Step 1: Location
   const [locationData, setLocationData] = useState<LocationStepData>({
     city: "", postalCode: "", state: "", country: "Switzerland", latitude: null, longitude: null,
