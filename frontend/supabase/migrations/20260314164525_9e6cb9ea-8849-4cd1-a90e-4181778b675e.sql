@@ -1,0 +1,1 @@
+ALTER TABLE public.nanny_profiles ADD COLUMN IF NOT EXISTS work_radius_km integer DEFAULT 15;

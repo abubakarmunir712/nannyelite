@@ -1,0 +1,45 @@
+# NannyElite
+
+> Trusted childcare platform in Switzerland connecting families with verified nannies through AI-powered matching.
+
+## About
+
+NannyElite is a Swiss childcare marketplace that helps families find pre-vetted, verified caregivers. The platform uses AI-powered matching to connect families with the right nanny based on their specific needs, location, and preferences.
+
+## Key Features
+
+- **Verified Caregivers**: All nannies undergo ID verification, background checks, phone/email verification, and certification validation
+- **AI-Powered Matching**: Intelligent matching algorithm considers experience, skills, location proximity, availability, and family preferences
+- **Multilingual Profiles**: Automatic translation of nanny profiles into multiple languages (English, German, French, Italian)
+- **Real Reviews**: Authentic reviews from verified families only — no fake reviews
+- **Flexible Scheduling**: Weekday care, after-school care, date night babysitting, overnight care
+- **Safety First**: Real-time AI safety monitoring of messages and verified family profiles for caregiver safety
+
+## Services
+
+- Weekday Childcare
+- After-School Care
+- Date Night / Babysitting
+- Overnight Care
+- Full-Time & Part-Time Nanny Placement
+
+## Location
+
+Switzerland (nationwide coverage)
+
+## Contact
+
+- Website: https://nannyelite.ch
+- Email: info@nannyelite.ch
+
+## Pages
+
+- Home: https://nannyelite.ch/
+- Find a Nanny: https://nannyelite.ch/search
+- About: https://nannyelite.ch/about
+- Blog: https://nannyelite.ch/blog
+- Help Center: https://nannyelite.ch/help
+- Job Marketplace: https://nannyelite.ch/jobs
+- Careers: https://nannyelite.ch/careers
+- Privacy Policy: https://nannyelite.ch/privacy
+- Terms of Service: https://nannyelite.ch/terms

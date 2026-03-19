@@ -1,0 +1,10 @@
+{
+  "name": "nannyelite",
+  "private": true,
+  "scripts": {
+    "postinstall": "npm --prefix frontend install",
+    "dev": "npm --prefix frontend run start",
+    "build": "npm --prefix frontend run build",
+    "build:dev": "npm --prefix frontend run build:dev"
+  }
+}

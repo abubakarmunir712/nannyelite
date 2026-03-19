@@ -1,0 +1,8 @@
+ALTER TABLE public.jobs 
+ALTER COLUMN family_user_id DROP NOT NULL;
+
+ALTER TABLE public.jobs 
+ADD COLUMN IF NOT EXISTS job_source text NOT NULL DEFAULT 'family',
+ADD COLUMN IF NOT EXISTS contact_name text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS contact_email text DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS contact_phone text DEFAULT NULL;
