@@ -21,7 +21,7 @@ function getClientIp(req: Request): string {
     req.headers.get("x-real-ip") || "unknown";
 }
 
-serve(async (req) => {
+serve(async (req: any) => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
