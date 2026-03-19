@@ -243,8 +243,14 @@ const Settings = () => {
             onClick={async () => {
               setExporting(true);
               try {
-                const { data, error } = await supabase.functions.invoke("export-user-data");
+                const { data: { session } } = await supabase.auth.getSession();
+                const { data, error } = await supabase.functions.invoke("export-user-data", {
+                  headers: {
+                    Authorization: `Bearer ${session?.access_token || ""}`,
+                  },
+                });
                 if (error) throw error;
+
                 const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement("a");

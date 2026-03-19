@@ -114,6 +114,9 @@ const FamilyOnboarding = () => {
         profile_visibility: profileVisibility,
       } as any).eq("user_id", user.id);
 
+      // Delete existing children to avoid duplicates on re-submission
+      await supabase.from("children").delete().eq("family_user_id", user.id);
+
       for (const child of children) {
         if (!child.birth_year) continue;
         await supabase.from("children").insert({

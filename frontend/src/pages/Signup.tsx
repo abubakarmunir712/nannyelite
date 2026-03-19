@@ -25,11 +25,20 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const passwordCheck = useMemo(() => validatePassword(password), [password]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      toast({ 
+        title: t("auth.pleaseAcceptTerms", "Please accept the terms"), 
+        description: t("auth.termsRequired", "You must agree to the Terms of Service and Privacy Policy to continue."),
+        variant: "destructive" 
+      });
+      return;
+    }
     if (!passwordCheck.valid) {
       toast({ title: t("auth.weakPassword"), description: passwordCheck.errors.join(". ") + ".", variant: "destructive" });
       return;
@@ -190,6 +199,20 @@ const Signup = () => {
                   })}
                 </div>
               )}
+            </div>
+
+            <div className="flex items-start gap-3 mt-2">
+              <input
+                id="terms"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                required
+              />
+              <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-tight cursor-pointer">
+                {t("auth.iAgreeTo")} <Link to="/terms" className="text-primary hover:underline font-medium">{t("footer.terms")}</Link> {t("auth.and")} <Link to="/privacy" className="text-primary hover:underline font-medium">{t("footer.privacy")}</Link>
+              </Label>
             </div>
 
             <Button type="submit" className="w-full rounded-full" disabled={loading}>

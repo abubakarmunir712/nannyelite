@@ -341,8 +341,12 @@ const NannyOnboarding = () => {
     }
     setAiLoading(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const { data, error } = await supabase.functions.invoke("generate-nanny-profile", {
         body: { narrative },
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
       });
       if (error) throw error;
       setProfileData(data);
@@ -816,7 +820,7 @@ const NannyOnboarding = () => {
               <span>{narrative.length < 100 ? "Minimum 100 characters recommended" : "✓ Good length"}</span>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="outline" onClick={() => setStep(1)} className="rounded-full">
                 <ArrowLeft className="h-4 w-4 mr-1" /> Back
               </Button>
@@ -827,6 +831,13 @@ const NannyOnboarding = () => {
                   <><Sparkles className="h-4 w-4 mr-2" /> Generate My Profile</>
                 )}
               </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setStep(3)}
+                className="rounded-full text-muted-foreground hover:text-foreground"
+              >
+                Skip AI & Enter Manually
+              </Button>
             </div>
           </div>
         )}
@@ -836,7 +847,7 @@ const NannyOnboarding = () => {
           <div className="space-y-6">
             <div>
               <h2 className="font-display text-2xl font-semibold text-foreground mb-2">Review Your Profile</h2>
-              <p className="text-muted-foreground text-sm">AI-generated from your narrative. Edit anything below.</p>
+              <p className="text-muted-foreground text-sm">Please review and complete your profile details below.</p>
             </div>
 
             <div className="space-y-2">

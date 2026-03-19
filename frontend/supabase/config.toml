@@ -9,3 +9,19 @@ project_id = "ftebhqbgmmpiucywufhu"
     verify_jwt = false
   [functions.sitemap]
     verify_jwt = false
+  [functions.geo-search]
+    verify_jwt = true
+  [functions.ai-match-score]
+    verify_jwt = true
+  [functions.ai-rate-suggestion]
+    verify_jwt = true
+  [functions.ai-safety-check]
+    verify_jwt = true
+  [functions.calculate-response-metrics]
+    verify_jwt = true
+  [functions.export-user-data]
+    verify_jwt = true
+  [functions.generate-nanny-profile]
+    verify_jwt = true
+  [functions.send-contact-form]
+    verify_jwt = false

@@ -27,8 +27,12 @@ const RateSuggestion = ({ nannyProfile }: { nannyProfile: any }) => {
 
   const getSuggestion = async () => {
     setLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
     const { data } = await supabase.functions.invoke("ai-rate-suggestion", {
       body: { nanny_profile: nannyProfile },
+      headers: {
+        Authorization: `Bearer ${session?.access_token || ""}`,
+      },
     });
     if (data && !data.error) setResult(data);
     setLoading(false);

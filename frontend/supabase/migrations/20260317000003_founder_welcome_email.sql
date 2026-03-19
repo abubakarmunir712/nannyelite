@@ -83,6 +83,7 @@ BEGIN
         ),
         'purpose', 'transactional',
         'label', 'welcome_email',
+        'run_id', gen_random_uuid()::text,
         'message_id', gen_random_uuid()::text,
         'queued_at', now()::text
       )

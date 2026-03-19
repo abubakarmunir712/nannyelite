@@ -238,8 +238,13 @@
       "uppercase": "At least one uppercase letter",
       "lowercase": "At least one lowercase letter",
       "number": "At least one number"
-    }
-  },
+    },
+    "iAgreeTo": "I agree to the",
+    "and": "and",
+    "pleaseAcceptTerms": "Please accept the terms",
+    "termsRequired": "You must agree to the Terms of Service and Privacy Policy to continue."
+    },
+
   "dashboard": {
     "welcome": "Welcome",
     "bookings": "Bookings",

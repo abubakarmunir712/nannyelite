@@ -202,8 +202,12 @@ const Messages = () => {
 
     // AI safety check
     try {
+      const { data: { session } } = await supabase.auth.getSession();
       const { data: safetyResult } = await supabase.functions.invoke("ai-safety-check", {
         body: { message_content: content },
+        headers: {
+          Authorization: `Bearer ${session?.access_token || ""}`,
+        },
       });
       if (safetyResult?.action === "block") {
         setNewMessage(content);

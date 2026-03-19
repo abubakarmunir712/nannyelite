@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound.tsx";
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
 const NannyOnboarding = lazy(() => import("./pages/NannyOnboarding.tsx"));
 const FamilyOnboarding = lazy(() => import("./pages/FamilyOnboarding.tsx"));
 const NannyProfile = lazy(() => import("./pages/NannyProfile.tsx"));
@@ -81,6 +82,7 @@ const App = () => (
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/onboarding/nanny" element={<NannyOnboarding />} />
                 <Route path="/onboarding/family" element={<FamilyOnboarding />} />
                 <Route path="/nanny/:id" element={<NannyProfile />} />

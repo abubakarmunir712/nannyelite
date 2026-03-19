@@ -242,9 +242,12 @@ Deno.serve(async (req) => {
       }
 
       try {
+        // Ensure run_id exists (required by Lovable email API)
+        const runId = payload.run_id || crypto.randomUUID()
+
         await sendLovableEmail(
           {
-            run_id: payload.run_id,
+            run_id: runId,
             to: payload.to,
             from: payload.from,
             sender_domain: payload.sender_domain,
