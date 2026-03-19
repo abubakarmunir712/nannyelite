@@ -37,6 +37,8 @@ const Privacy = lazy(() => import("./pages/Privacy.tsx"));
 const Settings = lazy(() => import("./pages/Settings.tsx"));
 const Earnings = lazy(() => import("./pages/Earnings.tsx"));
 const EditNannyProfile = lazy(() => import("./pages/EditNannyProfile.tsx"));
+const FamilyProfile = lazy(() => import("./pages/FamilyProfile.tsx"));
+const EditFamilyProfile = lazy(() => import("./pages/EditFamilyProfile.tsx"));
 
 // Admin pages
 const AdminLogin = lazy(() => import("./pages/AdminLogin.tsx"));
@@ -86,6 +88,7 @@ const App = () => (
                 <Route path="/onboarding/nanny" element={<NannyOnboarding />} />
                 <Route path="/onboarding/family" element={<FamilyOnboarding />} />
                 <Route path="/nanny/:id" element={<NannyProfile />} />
+                <Route path="/family/:id" element={<FamilyProfile />} />
                 <Route path="/search/:city" element={<CitySearch />} />
                 <Route path="/search" element={<SearchNannies />} />
                 <Route path="/jobs" element={<JobMarketplace />} />
@@ -102,6 +105,7 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/earnings" element={<Earnings />} />
                 <Route path="/edit-profile" element={<EditNannyProfile />} />
+                <Route path="/edit-family-profile" element={<EditFamilyProfile />} />
 
                 {/* Admin Login (public) */}
                 <Route path="/admin/login" element={<AdminLogin />} />

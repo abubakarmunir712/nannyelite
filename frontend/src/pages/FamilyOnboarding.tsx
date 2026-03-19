@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -26,8 +26,17 @@ const years = Array.from({ length: 19 }, (_, i) => currentYear - i);
 const FamilyOnboarding = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+    if (stepParam) {
+      const s = parseInt(stepParam);
+      if (s >= 1 && s <= 4) setStep(s);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (!user) navigate("/login");
@@ -68,10 +77,46 @@ const FamilyOnboarding = () => {
         if (d.specialRequirements) setSpecialRequirements(d.specialRequirements);
         if (d.children) setChildren(d.children);
         if (d.profileVisibility) setProfileVisibility(d.profileVisibility);
+        return;
       } catch { /* ignore corrupt data */ }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
+    // If no saved progress, fetch from DB
+    if (user) {
+      const fetchData = async () => {
+        const { data: fp } = await supabase.from("family_profiles").select("*").eq("user_id", user.id).maybeSingle();
+        if (fp) {
+          setLocationData({
+            city: fp.city || "",
+            postalCode: fp.postal_code || "",
+            state: fp.state || "",
+            country: fp.country || "Switzerland",
+            latitude: fp.latitude,
+            longitude: fp.longitude,
+          });
+          setAddress(fp.address || "");
+          setHouseholdDescription(fp.household_description || "");
+          setPetsDescription(fp.pets_description || "");
+          setSpecialRequirements(fp.special_requirements || "");
+        }
+
+        const { data: prof } = await supabase.from("profiles").select("profile_visibility").eq("user_id", user.id).maybeSingle();
+        if (prof?.profile_visibility) setProfileVisibility(prof.profile_visibility);
+
+        const { data: kids } = await supabase.from("children").select("*").eq("family_user_id", user.id);
+        if (kids && kids.length > 0) {
+          setChildren(kids.map(k => ({
+            id: k.id,
+            name: k.name || "",
+            birth_year: k.birth_year,
+            gender: k.gender,
+            notes: k.notes || "",
+          })));
+        }
+      };
+      fetchData();
+    }
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({

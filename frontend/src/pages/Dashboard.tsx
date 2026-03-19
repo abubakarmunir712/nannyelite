@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   LogOut, Calendar, Heart, Activity, Search, Clock, MapPin,
-  Globe, ChevronRight, Baby, Star, Plus, X, Bell, Briefcase, MessageCircle, Settings, DollarSign, Shield, Eye,
+  Globe, ChevronRight, Baby, Star, Plus, X, Bell, Briefcase, MessageCircle, Settings, DollarSign, Shield, Eye, Pencil, Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,22 +87,24 @@ const ACTIVITY_ICONS: Record<string, typeof Calendar> = {
 };
 
 const Dashboard = () => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [activeTab, setActiveTab] = useState<"bookings" | "favorites" | "activity" | "verification">("bookings");
+  const [activeTab, setActiveTab] = useState<"bookings" | "favorites" | "activity" | "verification" | "children">("bookings");
   const [nannyDocs, setNannyDocs] = useState<any[]>([]);
   const [nannyProfileStatus, setNannyProfileStatus] = useState<string | null>(null);
   const [nannyRejectionReason, setNannyRejectionReason] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [favorites, setFavorites] = useState<FavoriteNanny[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
+  const [children, setChildren] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [jobAlertsEnabled, setJobAlertsEnabled] = useState(true);
   const [userLat, setUserLat] = useState<number | null>(null);
   const [userLng, setUserLng] = useState<number | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { navigate("/login"); return; }
 
     const loadData = async () => {
@@ -138,6 +140,10 @@ const Dashboard = () => {
           const { data: fp } = await supabase.from("family_profiles").select("latitude, longitude, onboarding_completed").eq("user_id", user.id).single();
           if (!fp || !fp.onboarding_completed) { navigate("/onboarding/family"); return; }
           if (fp?.latitude && fp?.longitude) { setUserLat(Number(fp.latitude)); setUserLng(Number(fp.longitude)); }
+          
+          // Fetch children
+          const { data: kids } = await supabase.from("children").select("*").eq("family_user_id", user.id);
+          if (kids) setChildren(kids);
         } else {
           const { data: np2 } = await supabase.from("nanny_profiles").select("latitude, longitude").eq("user_id", user.id).single();
           if (np2?.latitude && np2?.longitude) { setUserLat(Number(np2.latitude)); setUserLng(Number(np2.longitude)); }
@@ -258,10 +264,28 @@ const Dashboard = () => {
     setFavorites((prev) => prev.filter((f) => f.id !== id));
   };
 
+  const deleteChild = async (id: string) => {
+    const { error } = await supabase.from("children").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    setChildren((prev) => prev.filter((c) => c.id !== id));
+    toast({ title: "Success", description: "Child removed." });
+  };
+
   const upcomingBookings = bookings.filter((b) => !isPast(new Date(b.booking_date)) && b.status !== "cancelled");
   const pastBookings = bookings.filter((b) => isPast(new Date(b.booking_date)) || b.status === "cancelled");
 
   const isFamily = profile?.role === "family";
+
+  if (authLoading || (loading && !profile)) {
+    return (
+      <div className="min-h-screen bg-secondary flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground text-sm">Loading dashboard...</div>
+      </div>
+    );
+  }
 
   if (!user) return null;
 
@@ -339,11 +363,18 @@ const Dashboard = () => {
               </>
             )}
             {isFamily && (
-              <Link to="/search">
-                <Button className="rounded-full gap-2">
-                  <Search className="h-4 w-4" /> Find a Nanny
-                </Button>
-              </Link>
+              <>
+                <Link to={`/family/${user!.id}`}>
+                  <Button variant="outline" className="rounded-full gap-2">
+                    <Eye className="h-4 w-4" /> My Profile
+                  </Button>
+                </Link>
+                <Link to="/search">
+                  <Button className="rounded-full gap-2 text-primary-foreground">
+                    <Search className="h-4 w-4" /> Find a Nanny
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
         </div>
@@ -456,7 +487,10 @@ const Dashboard = () => {
         <div className="flex gap-1 bg-muted rounded-xl p-1 mb-6">
           {[
             { key: "bookings" as const, label: "Bookings", icon: Calendar },
-            ...(isFamily ? [{ key: "favorites" as const, label: "Favorites", icon: Heart }] : []),
+            ...(isFamily ? [
+              { key: "favorites" as const, label: "Favorites", icon: Heart },
+              { key: "children" as const, label: "Children", icon: Baby }
+            ] : []),
             ...(!isFamily ? [{ key: "verification" as const, label: "Verification", icon: Shield }] : []),
             { key: "activity" as const, label: "Activity", icon: Bell },
           ].map((tab) => (
@@ -541,6 +575,75 @@ const Dashboard = () => {
                         </button>
                       </div>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Children Tab ── */}
+            {activeTab === "children" && isFamily && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
+                    <Baby className="h-5 w-5 text-primary" /> My Children
+                  </h2>
+                  <Link to="/edit-family-profile">
+                    <Button variant="outline" size="sm" className="rounded-full gap-2">
+                      <Pencil className="h-4 w-4" /> Manage Profile
+                    </Button>
+                  </Link>
+                </div>
+                
+                {children.length === 0 ? (
+                  <div className="bg-card rounded-xl border border-border p-8 text-center">
+                    <Baby className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-muted-foreground text-sm mb-4">No child information added yet</p>
+                    <Link to="/edit-family-profile">
+                      <Button className="rounded-full gap-2">
+                        <Plus className="h-4 w-4" /> Add Child
+                      </Button>
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {children.map((child) => (
+                      <div key={child.id} className="bg-card rounded-xl border border-border p-4 flex justify-between items-start group">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <Baby className="h-6 w-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-foreground">{child.name || "Child"}</h3>
+                            <p className="text-xs text-muted-foreground">Born in {child.birth_year} ({new Date().getFullYear() - child.birth_year}y)</p>
+                            {child.notes && <p className="text-xs text-muted-foreground mt-1 line-clamp-1 italic">"{child.notes}"</p>}
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Link to="/edit-family-profile">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full flex items-center justify-center">
+                              <Pencil className="h-3.5 w-3.5" />
+                            </Button>
+                          </Link>
+                          <button 
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full flex items-center justify-center transition-colors"
+                            onClick={() => {
+                              if (window.confirm("Are you sure you want to remove this child?")) {
+                                deleteChild(child.id);
+                              }
+                            }}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <Link 
+                      to="/edit-family-profile" 
+                      className="bg-card rounded-xl border border-dashed border-border p-4 flex flex-col items-center justify-center gap-2 hover:bg-muted/50 transition-colors group min-h-[88px]"
+                    >
+                      <Plus className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Add Child</span>
+                    </Link>
                   </div>
                 )}
               </div>
