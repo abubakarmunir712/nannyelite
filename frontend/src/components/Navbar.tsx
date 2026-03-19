@@ -110,7 +110,7 @@ const Navbar = () => {
                 </Link>
               )}
               <Link
-                to="/dashboard"
+                to={hasAdminAccess ? "/admin" : "/dashboard"}
                 className="ml-1 px-4 py-1.5 rounded-full bg-primary-foreground text-primary text-[13px] font-semibold transition-colors hover:bg-primary-foreground/90"
               >
                 {t("nav.dashboard")}
@@ -163,7 +163,7 @@ const Navbar = () => {
                     <ShieldCheck size={14} /> Admin
                   </Link>
                 )}
-                <Link to="/dashboard" onClick={() => setOpen(false)} className="inline-block px-5 py-2 rounded-full bg-primary-foreground text-primary text-sm font-semibold">
+                <Link to={hasAdminAccess ? "/admin" : "/dashboard"} onClick={() => setOpen(false)} className="inline-block px-5 py-2 rounded-full bg-primary-foreground text-primary text-sm font-semibold">
                   {t("nav.dashboard")}
                 </Link>
               </>

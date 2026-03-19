@@ -19,13 +19,13 @@
 - **Expected behavior:** Emails are processed successfully without failed jobs.
 - **Action:** Add `run_id` and test queue.
 
-### [ ] EMAIL AND OTP VERIFICATION FLOW
+### [x] EMAIL AND OTP VERIFICATION FLOW
 - **Current situation:** OTP verification exists but is not properly enforced.
 - **Issue:** Email sending fails (run_id), and auto-confirm is enabled, bypassing verification.
 - **Expected behavior:** User signs up -> receives email -> must verify before accessing the app.
 - **Action:** Fix email sending, disable auto-confirm, and test full verification flow.
 
-### [ ] PROFILE VISIBILITY LOGIC
+### [x] PROFILE VISIBILITY LOGIC
 - **Problem:** Profiles may be created with `profile_visible: false` and never become visible.
 - **Expected behavior:** Profile should become visible at the correct moment according to product logic.
 - **Action:** Confirm flow and ensure visibility is properly updated.
@@ -36,7 +36,7 @@
 - **Expected behavior:** Children data should be updated or replaced, not duplicated.
 - **Action:** Implement replace or update logic instead of repeated insert.
 
-### [ ] PROFILE_VISIBILITY FIELD
+### [x] PROFILE_VISIBILITY FIELD
 - **Problem:** Code writes to `profile_visibility` but field may not exist in database.
 - **Expected behavior:** Field must exist and save correctly or be removed from logic.
 - **Action:** Align database and code.
@@ -46,7 +46,7 @@
 - **Expected behavior:** User can skip AI and continue.
 - **Action:** Add skip or manual option.
 
-### [ ] VALIDATION UX
+### [x] VALIDATION UX
 - **Problem:** Validation relies mostly on browser default behavior.
 - **Expected behavior:** Clear inline validation messages for required fields and errors.
 - **Action:** Implement custom validation messages.
@@ -56,7 +56,7 @@
 - **Expected behavior:** User must accept terms and privacy policy before signup.
 - **Action:** Add required checkbox and block signup if not accepted.
 
-### [ ] ROUTE PROTECTION
+### [x] ROUTE PROTECTION
 - **Problem:** Auth protection is inconsistent across routes.
 - **Expected behavior:** All protected routes follow the same guard logic.
 - **Action:** Standardize route protection.

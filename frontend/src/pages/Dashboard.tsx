@@ -17,6 +17,8 @@ import IdVerification from "@/components/IdVerification";
 import VerificationProgress from "@/components/VerificationProgress";
 import { Switch } from "@/components/ui/switch";
 import MatchingSuggestions from "@/components/MatchingSuggestions";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { useToast } from "@/hooks/use-toast";
 
 interface Profile {
   full_name: string | null;
@@ -88,7 +90,9 @@ const ACTIVITY_ICONS: Record<string, typeof Calendar> = {
 
 const Dashboard = () => {
   const { user, signOut, loading: authLoading } = useAuth();
+  const { hasAdminAccess, loading: adminLoading } = useAdminRole();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [activeTab, setActiveTab] = useState<"bookings" | "favorites" | "activity" | "verification" | "children">("bookings");
   const [nannyDocs, setNannyDocs] = useState<any[]>([]);
@@ -104,8 +108,15 @@ const Dashboard = () => {
   const [userLng, setUserLng] = useState<number | null>(null);
 
   useEffect(() => {
-    if (authLoading) return;
+    if (authLoading || adminLoading) return;
     if (!user) { navigate("/login"); return; }
+
+    // IF USER IS ADMIN, REDIRECT TO ADMIN DASHBOARD
+    if (hasAdminAccess) {
+      console.log("Admin detected, redirecting to /admin");
+      navigate("/admin");
+      return;
+    }
 
     const loadData = async () => {
       // Profile
@@ -252,7 +263,7 @@ const Dashboard = () => {
     };
 
     loadData();
-  }, [user, navigate]);
+  }, [user, navigate, hasAdminAccess, authLoading, adminLoading]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -279,7 +290,7 @@ const Dashboard = () => {
 
   const isFamily = profile?.role === "family";
 
-  if (authLoading || (loading && !profile)) {
+  if (authLoading || adminLoading || (loading && !profile)) {
     return (
       <div className="min-h-screen bg-secondary flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground text-sm">Loading dashboard...</div>
@@ -287,7 +298,7 @@ const Dashboard = () => {
     );
   }
 
-  if (!user) return null;
+  if (!user || hasAdminAccess) return null;
 
   const formatBookingDate = (dateStr: string) => {
     const d = new Date(dateStr);

@@ -1,9 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AppErrorBoundary } from "@/components/ErrorBoundary";
 import { lazy, Suspense } from "react";
 
@@ -62,6 +62,24 @@ const PageLoader = () => (
   </div>
 );
 
+// Auth Guard to protect routes
+const AuthGuard = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading, isVerified } = useAuth();
+  const location = useLocation();
+
+  if (loading) return <PageLoader />;
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (!isVerified) {
+    return <Navigate to="/login?verified=false" replace />;
+  }
+
+  return <>{children}</>;
+};
+
 // Wrapper component to apply AdminGuard to admin routes
 const ProtectedAdminRoute = ({ children }: { children: React.ReactNode }) => (
   <AdminGuard>{children}</AdminGuard>
@@ -83,17 +101,17 @@ const App = () => (
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/onboarding/nanny" element={<NannyOnboarding />} />
-                <Route path="/onboarding/family" element={<FamilyOnboarding />} />
+                <Route path="/dashboard" element={<AuthGuard><Dashboard /></AuthGuard>} />
+                <Route path="/onboarding" element={<AuthGuard><Onboarding /></AuthGuard>} />
+                <Route path="/onboarding/nanny" element={<AuthGuard><NannyOnboarding /></AuthGuard>} />
+                <Route path="/onboarding/family" element={<AuthGuard><FamilyOnboarding /></AuthGuard>} />
                 <Route path="/nanny/:id" element={<NannyProfile />} />
                 <Route path="/family/:id" element={<FamilyProfile />} />
                 <Route path="/search/:city" element={<CitySearch />} />
                 <Route path="/search" element={<SearchNannies />} />
                 <Route path="/jobs" element={<JobMarketplace />} />
                 <Route path="/jobs/:id" element={<JobDetail />} />
-                <Route path="/messages" element={<Messages />} />
+                <Route path="/messages" element={<AuthGuard><Messages /></AuthGuard>} />
                 <Route path="/about" element={<About />} />
                 <Route path="/careers" element={<Careers />} />
                 <Route path="/blog" element={<Blog />} />
@@ -102,10 +120,10 @@ const App = () => (
                 <Route path="/security" element={<Security />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/earnings" element={<Earnings />} />
-                <Route path="/edit-profile" element={<EditNannyProfile />} />
-                <Route path="/edit-family-profile" element={<EditFamilyProfile />} />
+                <Route path="/settings" element={<AuthGuard><Settings /></AuthGuard>} />
+                <Route path="/earnings" element={<AuthGuard><Earnings /></AuthGuard>} />
+                <Route path="/edit-profile" element={<AuthGuard><EditNannyProfile /></AuthGuard>} />
+                <Route path="/edit-family-profile" element={<AuthGuard><EditFamilyProfile /></AuthGuard>} />
 
                 {/* Admin Login (public) */}
                 <Route path="/admin/login" element={<AdminLogin />} />

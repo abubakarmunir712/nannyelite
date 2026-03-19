@@ -122,6 +122,7 @@ const EditFamilyProfile = () => {
           pets_description: petsDescription,
           special_requirements: specialRequirements,
           onboarding_completed: true,
+          profile_visible: true,
         }, { onConflict: "user_id" });
 
       if (profileError) throw profileError;

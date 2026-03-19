@@ -48,7 +48,7 @@ export default function AdminLogin() {
       if (data.user) {
         // Check if user has admin role
         const { data: adminRole } = await supabase
-          .from("admin_roles")
+          .from("user_roles")
           .select("role")
           .eq("user_id", data.user.id)
           .single();

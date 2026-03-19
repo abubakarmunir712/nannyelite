@@ -26,23 +26,32 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const passwordCheck = useMemo(() => validatePassword(password), [password]);
 
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!fullName.trim()) newErrors.fullName = "Full name is required";
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (!passwordCheck.valid) {
+      newErrors.password = "Password does not meet requirements";
+    }
+    if (!acceptedTerms) newErrors.terms = "You must accept the terms";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!acceptedTerms) {
-      toast({ 
-        title: t("auth.pleaseAcceptTerms", "Please accept the terms"), 
-        description: t("auth.termsRequired", "You must agree to the Terms of Service and Privacy Policy to continue."),
-        variant: "destructive" 
-      });
-      return;
-    }
-    if (!passwordCheck.valid) {
-      toast({ title: t("auth.weakPassword"), description: passwordCheck.errors.join(". ") + ".", variant: "destructive" });
-      return;
-    }
+    if (!validate()) return;
+    
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
@@ -141,11 +150,14 @@ const Signup = () => {
                   id="fullName"
                   placeholder={t("auth.fullNamePlaceholder")}
                   value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="pl-10"
-                  required
+                  onChange={(e) => {
+                    setFullName(e.target.value);
+                    if (errors.fullName) setErrors(prev => ({ ...prev, fullName: "" }));
+                  }}
+                  className={`pl-10 ${errors.fullName ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
               </div>
+              {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
             </div>
 
             <div className="space-y-2">
@@ -157,11 +169,14 @@ const Signup = () => {
                   type="email"
                   placeholder="you@example.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
-                  required
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (errors.email) setErrors(prev => ({ ...prev, email: "" }));
+                  }}
+                  className={`pl-10 ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
               </div>
+              {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
             </div>
 
             <div className="space-y-2">
@@ -173,9 +188,11 @@ const Signup = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder={t("auth.passwordPlaceholder")}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
-                  required
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors(prev => ({ ...prev, password: "" }));
+                  }}
+                  className={`pl-10 pr-10 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
                   minLength={8}
                 />
                 <button
@@ -186,6 +203,7 @@ const Signup = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {errors.password && <p className="text-xs text-destructive">{errors.password}</p>}
               {password.length > 0 && (
                 <div className="space-y-1 mt-2">
                   {passwordRules.map(({ key, rule }) => {
@@ -201,18 +219,23 @@ const Signup = () => {
               )}
             </div>
 
-            <div className="flex items-start gap-3 mt-2">
-              <input
-                id="terms"
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                required
-              />
-              <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-tight cursor-pointer">
-                {t("auth.iAgreeTo")} <Link to="/terms" className="text-primary hover:underline font-medium">{t("footer.terms")}</Link> {t("auth.and")} <Link to="/privacy" className="text-primary hover:underline font-medium">{t("footer.privacy")}</Link>
-              </Label>
+            <div className="flex flex-col gap-1.5 mt-2">
+              <div className="flex items-start gap-3">
+                <input
+                  id="terms"
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => {
+                    setAcceptedTerms(e.target.checked);
+                    if (errors.terms) setErrors(prev => ({ ...prev, terms: "" }));
+                  }}
+                  className={`mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary ${errors.terms ? "border-destructive" : ""}`}
+                />
+                <Label htmlFor="terms" className="text-sm font-normal text-muted-foreground leading-tight cursor-pointer">
+                  {t("auth.iAgreeTo")} <Link to="/terms" className="text-primary hover:underline font-medium">{t("footer.terms")}</Link> {t("auth.and")} <Link to="/privacy" className="text-primary hover:underline font-medium">{t("footer.privacy")}</Link>
+                </Label>
+              </div>
+              {errors.terms && <p className="text-xs text-destructive">{errors.terms}</p>}
             </div>
 
             <Button type="submit" className="w-full rounded-full" disabled={loading}>

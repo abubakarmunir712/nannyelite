@@ -100,26 +100,22 @@ const NARRATIVE_SCRIPT = `Tell us about yourself! Here's what to cover:
 Write freely — our AI will organize everything into your professional profile!`;
 
 const DAYS = [
-  { key: "MON", label: "Mon" },
-  { key: "TUE", label: "Tue" },
-  { key: "WED", label: "Wed" },
-  { key: "THU", label: "Thu" },
-  { key: "FRI", label: "Fri" },
-  { key: "SAT", label: "Sat" },
-  { key: "SUN", label: "Sun" },
+  { key: "Monday", label: "Mon" },
+  { key: "Tuesday", label: "Tue" },
+  { key: "Wednesday", label: "Wed" },
+  { key: "Thursday", label: "Thu" },
+  { key: "Friday", label: "Fri" },
+  { key: "Saturday", label: "Sat" },
+  { key: "Sunday", label: "Sun" },
 ] as const;
 
 const PERIODS = [
-  { key: "BEFORE_SCHOOL", label: "Before School", time: "6–8am" },
-  { key: "MORNING", label: "Morning", time: "8–12pm" },
-  { key: "MIDDAY", label: "Midday", time: "12–2pm" },
-  { key: "AFTERNOON", label: "Afternoon", time: "2–4pm" },
-  { key: "AFTER_SCHOOL", label: "After School", time: "4–6pm" },
-  { key: "EVENING", label: "Evening", time: "6–9pm" },
-  { key: "NIGHT", label: "Night", time: "9pm+" },
+  { key: "Morning", label: "Morning", time: "8–12pm" },
+  { key: "Afternoon", label: "Afternoon", time: "12–5pm" },
+  { key: "Evening", label: "Evening", time: "5pm+" },
 ] as const;
 
-type SlotKey = `${typeof DAYS[number]["key"]}_${typeof PERIODS[number]["key"]}`;
+type SlotKey = `${typeof DAYS[number]["key"]}-${typeof PERIODS[number]["key"]}`;
 
 const NannyOnboarding = () => {
   const { user } = useAuth();
@@ -445,13 +441,13 @@ const NannyOnboarding = () => {
         hourly_rate_recurring: partTimeRate ? parseFloat(partTimeRate) : null,
         babysitting_rate_chf: babysittingRate ? parseFloat(babysittingRate) : null,
         part_time_childcare_rate_chf: partTimeRate ? parseFloat(partTimeRate) : null,
-        available_monday: Array.from(availSlots).some(k => k.startsWith("MON_")),
-        available_tuesday: Array.from(availSlots).some(k => k.startsWith("TUE_")),
-        available_wednesday: Array.from(availSlots).some(k => k.startsWith("WED_")),
-        available_thursday: Array.from(availSlots).some(k => k.startsWith("THU_")),
-        available_friday: Array.from(availSlots).some(k => k.startsWith("FRI_")),
-        available_saturday: Array.from(availSlots).some(k => k.startsWith("SAT_")),
-        available_sunday: Array.from(availSlots).some(k => k.startsWith("SUN_")),
+        available_monday: Array.from(availSlots).some(k => k.startsWith("Monday-")),
+        available_tuesday: Array.from(availSlots).some(k => k.startsWith("Tuesday-")),
+        available_wednesday: Array.from(availSlots).some(k => k.startsWith("Wednesday-")),
+        available_thursday: Array.from(availSlots).some(k => k.startsWith("Thursday-")),
+        available_friday: Array.from(availSlots).some(k => k.startsWith("Friday-")),
+        available_saturday: Array.from(availSlots).some(k => k.startsWith("Saturday-")),
+        available_sunday: Array.from(availSlots).some(k => k.startsWith("Sunday-")),
         availability_notes: availNotes || null,
         available_school_holidays: schoolHolidays,
         video_intro_url: videoIntroUrl,
@@ -473,7 +469,7 @@ const NannyOnboarding = () => {
         phone_number: phoneNumber || null,
         work_radius_km: workRadius,
         onboarding_completed: true,
-        profile_visible: false,
+        profile_visible: true,
         profile_status: "pending",
       } as any, { onConflict: "user_id" });
 
@@ -490,8 +486,8 @@ const NannyOnboarding = () => {
       await supabase.from("availability_slots").delete().eq("user_id", user.id);
       if (availSlots.size > 0) {
         const slotsToInsert = Array.from(availSlots).map((slotKey) => {
-          const [day, ...periodParts] = slotKey.split("_");
-          return { user_id: user.id, day, period: periodParts.join("_") };
+          const [day, period] = slotKey.split("-");
+          return { user_id: user.id, day, period };
         });
         await supabase.from("availability_slots").insert(slotsToInsert);
       }

@@ -150,11 +150,13 @@ const FamilyOnboarding = () => {
           pets_description: petsDescription,
           special_requirements: specialRequirements,
           onboarding_completed: true,
+          profile_visible: true,
+          profile_status: "pending",
         }, { onConflict: "user_id" });
 
       if (profileError) throw profileError;
 
-      // Save profile visibility
+      // Save profile visibility to main profiles table
       await supabase.from("profiles").update({
         profile_visibility: profileVisibility,
       } as any).eq("user_id", user.id);

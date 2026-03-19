@@ -99,12 +99,13 @@ const AdminOverview = () => {
         }
         setGrowthData(monthsData);
 
-        // Fetch admin count for distribution (try admin_roles, fallback to 0)
+        // Fetch admin count for distribution (try user_roles, fallback to 0)
         let adminCount = 0;
         try {
           const { count } = await supabase
-            .from("admin_roles")
-            .select("id", { count: "exact", head: true });
+            .from("user_roles")
+            .select("id", { count: "exact", head: true })
+            .in("role", ["admin", "moderator", "support"]);
           adminCount = count ?? 0;
         } catch {
           // RLS might block this

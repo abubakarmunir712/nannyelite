@@ -44,6 +44,7 @@ export const SignupEmail = ({
           </Link>
           ! We're excited to have you.
         </Text>
+        
         <Text style={text}>
           Please confirm your email address (
           <Link href={`mailto:${recipient}`} style={link}>
@@ -52,7 +53,7 @@ export const SignupEmail = ({
           ) by clicking the button below:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Get Started
+          Confirm Email
         </Button>
         <Text style={footer}>
           If you didn't create an account, you can safely ignore this email.
@@ -69,5 +70,5 @@ const container = { backgroundColor: '#ffffff', padding: '32px', borderRadius: '
 const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#1a2233', margin: '0 0 20px', fontFamily: "'Playfair Display', Georgia, serif" }
 const text = { fontSize: '14px', color: '#6b7280', lineHeight: '1.6', margin: '0 0 20px' }
 const link = { color: '#1a2744', textDecoration: 'underline' }
-const button = { backgroundColor: '#1a2744', color: '#ffffff', fontSize: '14px', fontWeight: '600' as const, borderRadius: '9999px', padding: '12px 24px', textDecoration: 'none' }
+const button = { backgroundColor: '#1a2744', color: '#ffffff', fontSize: '14px', fontWeight: '600' as const, borderRadius: '9999px', padding: '12px 24px', textDecoration: 'none', display: 'inline-block' }
 const footer = { fontSize: '12px', color: '#9ca3af', margin: '30px 0 0' }
