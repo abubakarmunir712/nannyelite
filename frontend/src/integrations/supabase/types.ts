@@ -291,12 +291,15 @@ export type Database = {
           created_at: string
           household_description: string | null
           id: string
+          is_seeded: boolean | null
           latitude: number | null
           longitude: number | null
           onboarding_completed: boolean | null
           pets_description: string | null
           postal_code: string | null
           preferred_language: string | null
+          profile_status: string | null
+          profile_visible: boolean | null
           special_requirements: string | null
           state: string | null
           updated_at: string
@@ -309,12 +312,15 @@ export type Database = {
           created_at?: string
           household_description?: string | null
           id?: string
+          is_seeded?: boolean | null
           latitude?: number | null
           longitude?: number | null
           onboarding_completed?: boolean | null
           pets_description?: string | null
           postal_code?: string | null
           preferred_language?: string | null
+          profile_status?: string | null
+          profile_visible?: boolean | null
           special_requirements?: string | null
           state?: string | null
           updated_at?: string
@@ -327,12 +333,15 @@ export type Database = {
           created_at?: string
           household_description?: string | null
           id?: string
+          is_seeded?: boolean | null
           latitude?: number | null
           longitude?: number | null
           onboarding_completed?: boolean | null
           pets_description?: string | null
           postal_code?: string | null
           preferred_language?: string | null
+          profile_status?: string | null
+          profile_visible?: boolean | null
           special_requirements?: string | null
           state?: string | null
           updated_at?: string

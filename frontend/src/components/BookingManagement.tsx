@@ -5,6 +5,7 @@ import { Calendar, Check, X, Clock, ChevronRight } from "lucide-react";
 import { format, isPast, isToday, isTomorrow } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -62,9 +63,10 @@ interface BookingManagementProps {
   bookings: Booking[];
   isFamily: boolean;
   onUpdate: (id: string, status: string) => void;
+  loading?: boolean;
 }
 
-const BookingManagement = ({ bookings, isFamily, onUpdate }: BookingManagementProps) => {
+const BookingManagement = ({ bookings, isFamily, onUpdate, loading = false }: BookingManagementProps) => {
   const { toast } = useToast();
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -87,6 +89,23 @@ const BookingManagement = ({ bookings, isFamily, onUpdate }: BookingManagementPr
       onUpdate(bookingId, newStatus);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="font-display text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-primary" /> Upcoming Bookings
+          </h2>
+          <div className="space-y-3">
+            {[1, 2].map((i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
